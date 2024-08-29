@@ -23,3 +23,10 @@ spring:
 token:
   signing:
     key: GnoHqCvMyxHhu5e7SwxEiyE4+GNVsyUZb3M6XqTJwbg=
+server:
+  port: 8443
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:keystore.p12
+    key-store-password: mypassword
+    key-alias: mykey
