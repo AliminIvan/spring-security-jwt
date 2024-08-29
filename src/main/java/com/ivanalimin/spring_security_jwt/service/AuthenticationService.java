@@ -19,6 +19,7 @@ public class AuthenticationService {
     private final JwtTokenService jwtTokenService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final UserActionLogger userActionLogger;
 
     public JwtAuthenticationResponse singUp(SignUpRequest request) {
         User user = User.builder()
@@ -29,6 +30,7 @@ public class AuthenticationService {
                 .build();
         userService.create(user);
         String token = jwtTokenService.generateToken(user);
+        userActionLogger.logUserRegister(request.getUsername());
         return new JwtAuthenticationResponse(token);
     }
 
@@ -39,6 +41,7 @@ public class AuthenticationService {
         ));
         UserDetails user = userService.getUserDetailsService().loadUserByUsername(request.getUsername());
         String token = jwtTokenService.generateToken(user);
+        userActionLogger.logUserLogin(request.getUsername());
         return new JwtAuthenticationResponse(token);
     }
 }

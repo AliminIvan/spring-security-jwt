@@ -48,7 +48,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(PathRequest.toH2Console()).permitAll()//for h2 console working, not for production
-                        .requestMatchers("/endpoint", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/moderator/**").hasAnyRole("MODERATOR", "ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())

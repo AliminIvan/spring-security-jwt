@@ -10,11 +10,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository repository;
+    private final UserActionLogger userActionLogger;
 
     public User save(User user) {
         return repository.save(user);
@@ -42,6 +45,14 @@ public class UserService {
     public User getCurrentUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return getByUsername(username);
+    }
+
+    public void changeUserRole(String adminUsername, UUID userId, String newRole) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        user.setRole(Role.valueOf(newRole));
+        repository.save(user);
+        userActionLogger.logRoleChange(adminUsername, user.getUsername(), newRole);
     }
 
     public void getAdmin() {
