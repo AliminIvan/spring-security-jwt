@@ -7,8 +7,9 @@ import com.ivanalimin.spring_security_jwt.model.Role;
 import com.ivanalimin.spring_security_jwt.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,11 +36,19 @@ public class AuthenticationService {
     }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-        ));
-        UserDetails user = userService.getUserDetailsService().loadUserByUsername(request.getUsername());
+        User user = (User) userService.getUserDetailsService().loadUserByUsername(request.getUsername());
+        if (userService.isAccountLocked(user)) {
+            throw new LockedException("Account is locked until: " + user.getAccountLockedUntil());
+        }
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            ));
+        } catch (BadCredentialsException exception) {
+            userService.increaseFailedLoginAttempts(user);
+            throw exception;
+        }
         String token = jwtTokenService.generateToken(user);
         userActionLogger.logUserLogin(request.getUsername());
         return new JwtAuthenticationResponse(token);

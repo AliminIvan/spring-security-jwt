@@ -18,4 +18,8 @@ public class UserActionLogger {
     public void logRoleChange(String adminUsername, String targetUsername, String newRole) {
         log.info("Admin {} changed role of user {} to {}", adminUsername, targetUsername, newRole);
     }
+
+    public void logAccountLock(String username) {
+        log.info("User {} has account lock", username);
+    }
 }

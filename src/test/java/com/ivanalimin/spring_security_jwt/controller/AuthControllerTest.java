@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ivanalimin.spring_security_jwt.dto.JwtAuthenticationResponse;
 import com.ivanalimin.spring_security_jwt.dto.SignInRequest;
 import com.ivanalimin.spring_security_jwt.dto.SignUpRequest;
+import com.ivanalimin.spring_security_jwt.model.User;
 import com.ivanalimin.spring_security_jwt.service.AuthenticationService;
 import com.ivanalimin.spring_security_jwt.service.JwtTokenService;
 import com.ivanalimin.spring_security_jwt.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -37,31 +40,39 @@ public class AuthControllerTest {
     @MockBean
     private UserService userService;
 
-    @Test
-    public void testSignUp() throws Exception {
-        SignUpRequest request = new SignUpRequest("testuser", "test@example.com", "password");
-        JwtAuthenticationResponse response = new JwtAuthenticationResponse("jwt-token");
+    @Autowired
+    private ObjectMapper objectMapper;
 
-        Mockito.when(authenticationService.singUp(Mockito.any(SignUpRequest.class))).thenReturn(response);
+    private SignUpRequest signUpRequest;
+    private SignInRequest signInRequest;
+    private JwtAuthenticationResponse jwtResponse;
 
-        mockMvc.perform(post("/auth/sign-up")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"));
+    @BeforeEach
+    void setUp() {
+        signUpRequest = new SignUpRequest("testuser", "testemail@test.com", "password123");
+        signInRequest = new SignInRequest("testuser", "password123");
+        jwtResponse = new JwtAuthenticationResponse("test-token");
     }
 
     @Test
-    public void testSignIn() throws Exception {
-        SignInRequest request = new SignInRequest("testuser", "password");
-        JwtAuthenticationResponse response = new JwtAuthenticationResponse("jwt-token");
+    void signUp_ShouldReturnJwtToken() throws Exception {
+        when(authenticationService.singUp(any(SignUpRequest.class))).thenReturn(jwtResponse);
 
-        Mockito.when(authenticationService.signIn(Mockito.any(SignInRequest.class))).thenReturn(response);
+        mockMvc.perform(post("/auth/sign-up")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(signUpRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(jwtResponse)));
+    }
+
+    @Test
+    void signIn_ShouldReturnJwtToken() throws Exception {
+        when(authenticationService.signIn(any(SignInRequest.class))).thenReturn(jwtResponse);
 
         mockMvc.perform(post("/auth/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(signInRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt-token"));
+                .andExpect(content().json(objectMapper.writeValueAsString(jwtResponse)));
     }
 }

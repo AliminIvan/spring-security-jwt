@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -18,6 +19,9 @@ public class UserService {
 
     private final UserRepository repository;
     private final UserActionLogger userActionLogger;
+
+    private static final int MAX_FAILED_LOGIN_ATTEMPTS = 3;
+    private static final long LOCK_TIME_DURATION = 15;
 
     public User save(User user) {
         return repository.save(user);
@@ -59,5 +63,38 @@ public class UserService {
         User currentUser = getCurrentUser();
         currentUser.setRole(Role.ROLE_ADMIN);
         save(currentUser);
+    }
+
+    public void increaseFailedLoginAttempts(User user) {
+        int newFailedLoginAttempts = user.getFailedAttempts() + 1;
+        user.setFailedAttempts(newFailedLoginAttempts);
+        if (newFailedLoginAttempts >= MAX_FAILED_LOGIN_ATTEMPTS) {
+            lockUserAccount(user);
+        }
+        save(user);
+    }
+
+    public void lockUserAccount(User user) {
+        user.setAccountLockedUntil(LocalDateTime.now().plusMinutes(LOCK_TIME_DURATION));
+        userActionLogger.logAccountLock(user.getUsername());
+        save(user);
+    }
+
+    public boolean isAccountLocked(User user) {
+        LocalDateTime accountLockedUntil = user.getAccountLockedUntil();
+        if (accountLockedUntil == null) {
+            return false;
+        }
+        if (accountLockedUntil.isBefore(LocalDateTime.now())) {
+            user.setAccountLockedUntil(null);
+            resetFailedAttempts(user);
+            return false;
+        }
+        return true;
+    }
+
+    public void resetFailedAttempts(User user) {
+        user.setFailedAttempts(0);
+        save(user);
     }
 }

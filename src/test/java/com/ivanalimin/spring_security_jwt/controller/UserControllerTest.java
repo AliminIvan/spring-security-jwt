@@ -10,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,30 +25,37 @@ public class UserControllerTest {
     private UserService userService;
 
     @MockBean
-    JwtTokenService jwtTokenService;
+    private JwtTokenService jwtTokenService;
 
-//    @Test
-//    @WithMockUser
-//    public void testExample() throws Exception {
-//        mockMvc.perform(get("/example"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("Hello, world!"));
-//    }
-//
-//    @Test
-//    @WithMockUser(roles = "ADMIN")
-//    public void testExampleAdmin() throws Exception {
-//        mockMvc.perform(get("/example/admin"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("Hello, admin!"));
-//    }
-//
-//    @Test
-//    @WithMockUser
-//    public void testGetAdmin() throws Exception {
-//        mockMvc.perform(get("/example/get-admin"))
-//                .andExpect(status().isOk());
-//
-//        verify(userService).getAdmin();
-//    }
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void getAdminData_ShouldReturnAdminData() throws Exception {
+        mockMvc.perform(get("/api/admin/data"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("This is admin data"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"MODERATOR", "ADMIN"})
+    void getModeratorData_ShouldReturnModeratorData() throws Exception {
+        mockMvc.perform(get("/api/moderator/data"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("This is moderator data"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"USER", "MODERATOR", "ADMIN"})
+    void getUserData_ShouldReturnUserData() throws Exception {
+        mockMvc.perform(get("/api/user/data"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("This is user data"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"USER", "MODERATOR", "ADMIN"})
+    void getExampleData_ShouldReturnExampleData() throws Exception {
+        mockMvc.perform(get("/api/example/data"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("This is example data"));
+    }
 }
