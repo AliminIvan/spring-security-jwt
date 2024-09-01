@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = AuthController.REST_URL)
+@RequestMapping(value = AuthApiController.REST_URL)
 @RequiredArgsConstructor
-public class AuthController {
-    static final String REST_URL = "/auth";
+public class AuthApiController {
+    static final String REST_URL = "/auth/api";
 
     private final AuthenticationService service;
 

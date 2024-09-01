@@ -18,6 +18,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -66,6 +70,13 @@ public class SecurityConfig {
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/auth/sign-in")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/auth/sign-in?error=true")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(oAuth2UserService()))
+                )
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));//for h2 console working, not for production
         return http.build();
     }
@@ -99,5 +110,10 @@ public class SecurityConfig {
             response.setStatus(HttpStatus.OK.value());
             response.getWriter().write("You have been logged out successfully.");
         };
+    }
+
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService() {
+        return new DefaultOAuth2UserService();
     }
 }

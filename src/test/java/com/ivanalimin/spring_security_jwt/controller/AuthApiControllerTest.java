@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ivanalimin.spring_security_jwt.dto.JwtAuthenticationResponse;
 import com.ivanalimin.spring_security_jwt.dto.SignInRequest;
 import com.ivanalimin.spring_security_jwt.dto.SignUpRequest;
-import com.ivanalimin.spring_security_jwt.model.User;
 import com.ivanalimin.spring_security_jwt.service.AuthenticationService;
 import com.ivanalimin.spring_security_jwt.service.JwtTokenService;
 import com.ivanalimin.spring_security_jwt.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,15 +16,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
+@WebMvcTest(AuthApiController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class AuthControllerTest {
+public class AuthApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -58,7 +55,7 @@ public class AuthControllerTest {
     void signUp_ShouldReturnJwtToken() throws Exception {
         when(authenticationService.singUp(any(SignUpRequest.class))).thenReturn(jwtResponse);
 
-        mockMvc.perform(post("/auth/sign-up")
+        mockMvc.perform(post("/auth/api/sign-up")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signUpRequest)))
                 .andExpect(status().isOk())
@@ -69,7 +66,7 @@ public class AuthControllerTest {
     void signIn_ShouldReturnJwtToken() throws Exception {
         when(authenticationService.signIn(any(SignInRequest.class))).thenReturn(jwtResponse);
 
-        mockMvc.perform(post("/auth/sign-in")
+        mockMvc.perform(post("/auth/api/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(signInRequest)))
                 .andExpect(status().isOk())

@@ -17,6 +17,25 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23livm7ztrTC0cjfEH
+            client-secret: 088e32d737c3482a4bce74d41483763dfd0ca081
+            scope:
+              - user:email
+            redirect-uri: "{baseUrl}/login/oauth2/code/github"
+            authorization-grant-type: authorization_code
+            client-name: GitHub
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: id
+            jwk-set-uri: https://api.github.com/user
   h2:
     console:
       enabled: true
