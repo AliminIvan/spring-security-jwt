@@ -10,9 +10,9 @@ import java.security.Principal;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = UserController.REST_URL)
+@RequestMapping(value = UserApiController.REST_URL)
 @RequiredArgsConstructor
-public class UserController {
+public class UserApiController {
     static final String REST_URL = "/api";
     private final UserService service;
 

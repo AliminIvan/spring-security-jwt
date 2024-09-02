@@ -14,6 +14,9 @@ public class HomeController {
         if (principal != null) {
             model.addAttribute("name", principal.getAttribute("name"));
             model.addAttribute("email", principal.getAttribute("email"));
+        } else {
+            model.addAttribute("name", "Гость");
+            model.addAttribute("email", "Неизвестно");
         }
         return "auth/home";
     }

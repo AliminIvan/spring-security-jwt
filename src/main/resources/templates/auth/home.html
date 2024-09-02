@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Домашняя страница</title>
@@ -8,9 +8,9 @@
 <h1>Добро пожаловать, <span th:text="${name}">Пользователь</span>!</h1>
 <p>Ваш email: <span th:text="${email}">example@example.com</span></p>
 
-<a href="/user/data">Данные пользователя</a><br>
-<a href="/moderator/data">Данные модератора</a><br>
-<a href="/admin/data">Данные администратора</a><br>
+<a href="user/profile">Профиль пользователя</a><br>
+<a href="moderator/dashboard">Панель модератора</a><br>
+<a href="admin/dashboard">Панель администратора</a><br>
 
 <form action="/auth/logout" method="post">
   <button type="submit">Выйти</button>
