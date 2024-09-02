@@ -11,6 +11,10 @@ public class UserActionLogger {
         log.info("User {} has logged in", username);
     }
 
+    public void logUserLogout(String username) {
+        log.info("User {} has logged out", username);
+    }
+
     public void logUserRegister(String username) {
         log.info("User {} has registered", username);
     }
@@ -21,5 +25,17 @@ public class UserActionLogger {
 
     public void logAccountLock(String username) {
         log.info("User {} has account lock", username);
+    }
+
+    public void logFailedLogin(String username, String reason) {
+        log.info("User {} failed to login. Reason {}", username, reason);
+    }
+
+    public void logAccessDenied(String username, String uri) {
+        log.info("User {} access denied. URI {}", username, uri);
+    }
+
+    public void logUnauthenticatedAccessAttempt(String uri) {
+        log.info("User {} unauthenticated access attempt. URI {}", uri, uri);
     }
 }
